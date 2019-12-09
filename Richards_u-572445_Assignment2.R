@@ -9,68 +9,54 @@ library(caret)
 
 ## Load data -------------------------------------------------------------------
 #dataDir <- "./input/"
-mushrooms <- read.delim ("./input/mushrooms.txt", stringsAsFactors = FALSE)
-edibility <- read.delim("./input/edibility.txt", stringsAsFactors = FALSE)
-survey <- read.delim("./input/clean_survey.txt", stringsAsFactors = FALSE)
+mushrooms <- read.delim ("./mushrooms.txt", stringsAsFactors = FALSE)
+edibility <- read.delim("./edibility.txt", stringsAsFactors = FALSE)
+survey <- read.delim("./clean_survey.txt", stringsAsFactors = FALSE)
 
 ## Exercise 1 ------------------------------------------------------------------
-#habitat_number <-function(input_df, habitat) {
-  #filter(mushrooms, wood == habitat |
-           #urban == habitat   |
-           #grasses == habitat |
-           #meadows == habitat | 
-           #path == habitat    |
-           #leaves == habitat)
-#}
 
 habitat_number <- function(input_df, habitat) {
-  if (habitat == "leaves") {
-    return(ncol(input_df))
-  } else {
-    return(nrow(input_df))
-  }
+  count = length(input_df$habitat[input_df$habitat == habitat])
+  return(count)
 }
+
+# habitat_number(mushrooms, "grasses")
 
 answer1 <-habitat_number(mushrooms, "leaves")
 
 ## Exercise 2 ------------------------------------------------------------------
-white_mushrooms <- function(mushrooms) {}
-
-
-
-count_contributing_factor <- function(colum_of_df, cont_factor) {
-  sum(row_of_df == cont_factor)
+mushroom_whiteparts <- function(df) {
+  df <- df %>% mutate(white_parts = rowSums(df[-1] == "white"))
+  return(df)
 }
 
-## create the new variable
-NYPD_2015$ROAD.RAGERS <- apply(NYPD_2015[, grepl("CONTRIBUTING.FACTOR",
-                                                 names(NYPD_2015))], 1, count_contributing_factor,
-                               "Aggressive Driving/Road Rage")
-NYPD_vehicles <- mutate_at(NYPD_2015, vars(contains("VEHICLE.TYPE.CODE")),
-                           funs(discretize_vehicles)) %>%
-  mutate(NUM.VEHICLES = VEHICLE.TYPE.CODE.1 + VEHICLE.TYPE.CODE.2 +
-           VEHICLE.TYPE.CODE.3 + VEHICLE.TYPE.CODE.4 + VEHICLE.TYPE.CODE.5)
-```
-## add a `CAUSE_DELAY` column
-determine_delay <- function(delays) {
-  cause_of_delay <- "UNKNOWN"
-  delay <- delays[2]
-  explained_delay <- sum(delays[3:6], na.rm = TRUE)
-  if (delay <= 0) {
-    cause_of_delay <- NA
-  } else {
-    if (explained_delay >= delay) {
-      cause_of_delay <- "KNOWN"
-    }
-  }
-  cause_of_delay
-}
+# mushroom_whiteparts(mushrooms) %>% glimpse()
+whitepart_mushrooms = mushroom_whiteparts(mushrooms)
 
-delays <- flights
-delays$DELAY_CAUSE <- apply(flights[, grepl("DELAY", names(flights))], 1,
-                            determine_delay)
+answer2 <- whitepart_mushrooms
 
 ## Exercise 3 ------------------------------------------------------------------
+
+get_edibility <- function(mdf, edf){
+  df <- mdf %>% mutate(edibility = edf$edibility[match(species,edf$species)])
+  return(df)
+}
+
+# get_edibility(mushrooms, edibility) %>% glimpse()
+mushroom_edibility <- get_edibility(mushrooms, edibility)
+
+answer3_a <- mushroom_edibility
+
+get_allArea_species <- function(mdf, sdf){
+  df <- mdf %>% filter(match(species,sdf$species) && rowSums(survey != 0))
+  return(df)
+}
+
+get_allArea_species(mushrooms, survey) %>% glimpse()
+
+df <- mushrooms %>% filter(species %in% survey$species && any(survey == "0"))
+df %>% glimpse()
+
 ## Exercise 4 ------------------------------------------------------------------
 ggplot(answer4, aes(x = mushroom_part, fill = color_of_part)) + geom_bar() +
   scale_fill_manual(values = c("white" = "white", "yellow" = "goldenrod",
