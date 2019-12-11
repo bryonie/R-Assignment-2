@@ -195,3 +195,59 @@ train_test_split <- function(df, P){
 }
 
 edible <- train_test_split(answer3_a,0.8)
+
+fit_model <- function(data){
+  set.seed(1)
+  model <- train(
+    edibility ~.,
+    method = "knn",
+    trControl = trainControl(
+      method="cv", 
+      number=5, 
+      classProbs = TRUE, 
+      summaryFunction = prSummary
+    ),
+    data = data,
+    metric = "Recall"
+  )
+
+  return(model)
+
+}
+
+edible_model <- fit_model(edible$trn)
+
+summary(edible_model)
+
+model_predict <- function(model,data){
+  set.seed(1)
+  predictions <- predict(model, data)
+  return(predictions)
+}
+
+predict_edible <- model_predict(edible_model, edible$tst)
+
+generate_accuracy <- function(pred, data){
+  accuracy <- sum(pred == data$edibility) /length(data$edibility)
+  accuracy
+}
+
+generate_accuracy(predict_edible, edible$tst)
+
+get_matrix <- function(data, pred){
+
+  data$edibility <- factor(data$edibility)
+  confM <- confusionMatrix(pred, data$edibility)
+  return(confM)
+}
+
+edible_matrix <- get_matrix(edible$tst, predict_edible)
+
+get_matrix_classes <- function(matrix){
+  return(list(
+    "precision" = edible_matrix$byClass["Precision"],
+    "recall" = edible_matrix$byClass["Recall"]
+  ))
+}
+
+answer10 <- get_matrix_classes(edible_matrix)
