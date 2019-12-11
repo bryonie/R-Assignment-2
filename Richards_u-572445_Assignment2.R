@@ -54,24 +54,7 @@ get_allArea_species <- function(mdf, sdf){
   return(df)
 }
 
-# & sdf$january != "0"
-# & sdf$february != "0"
-# & sdf$march != "0"
-# & sdf$april != "0"
-# & sdf$may != "0"
-# & sdf$june != "0"
-# & sdf$july != "0"
-# & sdf$august != "0"
-# & sdf$september != "0"
-# & sdf$october != "0"
-# & sdf$november != "0"
-# & sdf$december != "0")
-
 get_allArea_species(mushrooms, survey) %>% glimpse()
-
-bleh = get_allArea_species(mushrooms, survey)
-
-bleh$species[bleh$species == "bulbroot"] %>% glimpse()
 
 df <- mushrooms %>% filter(species %in% survey$species && any(survey == "0"))
 df %>% glimpse()
