@@ -50,14 +50,17 @@ mushroom_edibility <- get_edibility(mushrooms, edibility)
 answer3_a <- mushroom_edibility
 
 get_allArea_species <- function(mdf, sdf){
-  df <- mdf %>% filter(match(species,sdf$species) & rowSums(survey != 0))
+  tdf <- sdf %>%
+  filter_all(all_vars(. != 0))
+
+  df <- mdf %>% 
+  filter(species %in% tdf$species)
   return(df)
 }
 
-get_allArea_species(mushrooms, survey) %>% glimpse()
+# get_allArea_species(mushrooms, survey) %>% glimpse()
 
-df <- mushrooms %>% filter(species %in% survey$species && any(survey == "0"))
-df %>% glimpse()
+answer3b <- get_allArea_species(mushrooms, survey)
 
 ## Exercise 4 ------------------------------------------------------------------
 
